@@ -18,7 +18,6 @@ interface CreateUserResponse {
 }
 
 export class UserAPI extends CuriousApi {
-
   async createUser(payload: CreateUserPayload): Promise<CreateUserResponse> {
     try {
       this.log(`Creating user: ${payload.email}`);

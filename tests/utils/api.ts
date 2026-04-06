@@ -1,12 +1,10 @@
 import {APIRequestContext, request} from '@playwright/test';
 import {runtimeConfig} from "../config";
 
-// Construct a URL for API endpoints
 export const constructApiUrl = (baseUrl: string, endpoint: string): string => {
   return `${baseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
 };
 
-// Generic POST request helper
 export const postToApi = async (
   apiRequestContext: APIRequestContext,
   url: string,
@@ -44,11 +42,6 @@ type ApiLoginResponse = {
   }
 }
 
-/**
- * Perform an API authentication and return an access token on success
- * @param email
- * @param password
- */
 export const performLogin = async (email: string, password: string): Promise<string> => {
   const api = await request.newContext({ baseURL: runtimeConfig.apiBaseURL });
   const res = await api.post('/auth/login', {

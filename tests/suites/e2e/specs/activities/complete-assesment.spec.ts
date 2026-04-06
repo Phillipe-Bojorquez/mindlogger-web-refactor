@@ -1,4 +1,5 @@
 import { test, expect } from '../../../../fixtures/pages.fixture'
+import { requirePlaywrightAuthCredentials } from '../../../../utils/credentials';
 
 test.describe('Activity Completion', () => {
   test('User can complete an assessment and submit answers', async ({
@@ -8,23 +9,10 @@ test.describe('Activity Completion', () => {
     page,
     baseURL,
   }) => {
-    const authEmail =
-      process.env.PLAYWRIGHT_ADMIN_USER_EMAIL ||
-      process.env.PLAYWRIGHT_USER_EMAIL ||
-      (process.env as any).uat?.PLAYWRIGHT_ADMIN_EMAIL ||
-      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
-      '';
-    const authPassword =
-      process.env.PLAYWRIGHT_ADMIN_USER_PASSWORD ||
-      process.env.PLAYWRIGHT_USER_PASSWORD ||
-      (process.env as any).uat?.PLAYWRIGHT_ADMIN_PASSWORD ||
-      (process.env as any).uat?.PLAYWRIGHT_PASSWORD ||
-      '';
-
-    test(!authEmail || !authPassword, 'Set Playwright user/admin credentials for activity completion tests');
+    const { email, password } = requirePlaywrightAuthCredentials();
 
     await loginPage.goto(baseURL);
-    await loginPage.login(authEmail, authPassword);
+    await loginPage.login(email, password);
     await page.waitForURL(/.*\/protected\/applets/, { timeout: 15000 });
 
     await page.goto('/protected/applets');

@@ -1,4 +1,3 @@
-// TODO Perhaps a better implementation
 import { expect } from '@playwright/test';
 import {CuriousApi} from "./api";
 

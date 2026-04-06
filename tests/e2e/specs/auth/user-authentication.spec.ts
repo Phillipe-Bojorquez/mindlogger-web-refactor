@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/test';
+import { requirePlaywrightUserCredentials } from '../../../utils/credentials';
 
 test.describe('User Authentication', () => {
   test('User receives error message when no login credentials are used', async ({ loginPage, page, baseURL }) => {
@@ -23,18 +24,7 @@ test.describe('User Authentication', () => {
   });
 
   test('Authenticated user can navigate directly to a protected page', async ({ loginPage, page, baseURL }) => {
-    const email =
-      process.env.PLAYWRIGHT_USER_EMAIL ||
-      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
-      '';
-    const password =
-      process.env.PLAYWRIGHT_USER_PASSWORD ||
-      (process.env as any).uat?.PLAYWRIGHT_PASSWORD ||
-      '';
-
-    if (!email || !password) {
-      throw new Error('Set PLAYWRIGHT_USER_EMAIL and PLAYWRIGHT_USER_PASSWORD or process.env.uat.PLAYWRIGHT_EMAIL / PLAYWRIGHT_PASSWORD for auth tests.');
-    }
+    const { email, password } = requirePlaywrightUserCredentials();
 
     await loginPage.goto(baseURL);
     await loginPage.login(email, password);

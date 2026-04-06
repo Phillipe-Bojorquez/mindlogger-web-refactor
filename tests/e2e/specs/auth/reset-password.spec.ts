@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures/test';
 import { generateRandomUser } from '../../data/users';
+import { requirePlaywrightUserCredentials } from '../../../utils/credentials';
 
 test.describe('Password Reset', () => {
   test('User can reset their password when logged in', async ({ loginPage, settingsPage, usersApi, page, baseURL }) => {
@@ -39,14 +40,7 @@ test.describe('Password Reset', () => {
   });
 
   test('User can request password reset when logged out', async ({ forgotPasswordPage, page }) => {
-    const email =
-      process.env.PLAYWRIGHT_USER_EMAIL ||
-      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
-      '';
-
-    if (!email) {
-      throw new Error('Set PLAYWRIGHT_USER_EMAIL or process.env.uat.PLAYWRIGHT_EMAIL for password reset tests.');
-    }
+    const { email } = requirePlaywrightUserCredentials();
 
     await forgotPasswordPage.navigateFromLogin();
     await forgotPasswordPage.requestReset(email);
