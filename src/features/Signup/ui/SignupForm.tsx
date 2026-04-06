@@ -6,6 +6,8 @@ import { SignupFormSchema, TSignupForm } from '../model/signup.schema';
 
 import { useBanners } from '~/entities/banner/model';
 import { useLoginMutation, userModel, useSignupMutation } from '~/entities/user';
+import { isMFARequiredResponse } from '~/features/Login/model/mfa.types';
+import { LoginResult } from '~/shared/api';
 import {
   BaseButton,
   BasicFormProvider,
@@ -31,7 +33,10 @@ export const SignupForm = ({ locationState }: SignupFormProps) => {
 
   const [terms, setTerms] = useState<boolean>(false);
   const { onLoginSuccess } = userModel.hooks.useOnLogin({
-    backRedirectPath: locationState?.backRedirectPath as string,
+    backRedirectPath:
+      typeof locationState?.backRedirectPath === 'string'
+        ? locationState.backRedirectPath
+        : undefined,
   });
 
   const form = useCustomForm(
@@ -44,7 +49,18 @@ export const SignupForm = ({ locationState }: SignupFormProps) => {
 
   const { mutate: login, isLoading: isLoginLoading } = useLoginMutation({
     onSuccess(data, variables) {
-      const { user, token } = data.data.result;
+      const result: LoginResult = data.data.result;
+
+      // After signup, MFA should not be required (newly created accounts don't have MFA enabled)
+      // But handle it gracefully just in case
+      if (isMFARequiredResponse(result)) {
+        // This shouldn't happen for new accounts, but if it does, show an error
+        addErrorBanner(t('unexpectedError'));
+        return;
+      }
+
+      // TypeScript now knows result is LoginSuccessResult (not MFARequiredResult)
+      const { user, token } = result;
 
       return onLoginSuccess({
         user: {
@@ -52,6 +68,8 @@ export const SignupForm = ({ locationState }: SignupFormProps) => {
           password: variables.password,
         },
         tokens: token,
+        mfaUsed: false,
+        mfaMethod: null,
       });
     },
   });

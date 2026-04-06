@@ -26,6 +26,7 @@ export interface GetCompletedEntitiesPayload {
   appletId: ID;
   version?: string;
   fromDate: string; // example: 2022-01-01
+  includeInProgress?: boolean;
 }
 
 export type SuccessResponseActivityById = BaseSuccessResponse<ActivityDTO>;
@@ -123,8 +124,8 @@ export type AnswerPayload = {
     itemIds: Array<ID>;
     identifier: string | null;
     scheduledTime?: number;
-    startTime: number;
-    endTime: number;
+    startTime: number; // Milliseconds since Unix epoch
+    endTime: number; // Milliseconds since Unix epoch
     userPublicKey: string;
     scheduledEventId: string;
     localEndDate: string;
@@ -234,10 +235,19 @@ export type CompletedEntityDTO = {
   id: string;
   answerId: string;
   submitId: string;
+  version: string;
   targetSubjectId: string | null;
   scheduledEventId: string;
+  startTime: number; // Milliseconds since Unix epoch
+  endTime: number; // Milliseconds since Unix epoch
   localEndDate: string;
   localEndTime: string;
+  isFlowCompleted: boolean | null;
+  activityFlowOrder: number | null;
+  // Ordered activity IDs for the flow at the submitted version (only for in-progress flows)
+  flowActivityIds: string[] | null;
+  // Name of the flow at the submitted version (only for in-progress flows)
+  flowName: string | null;
 };
 
 export type CompletedEntitiesDTO = {

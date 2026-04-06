@@ -1577,7 +1577,6 @@ describe('ActivityGroupsBuilder', () => {
           startAt: addMinutes(scheduledAt, 5).getTime(),
           endAt: null,
           currentActivityId: 'test-id-1',
-          currentActivityStartAt: addMinutes(scheduledAt, 5).getTime(),
           submitId: 'group-key-1',
           pipelineActivityOrder: 0,
           context: {
@@ -1669,6 +1668,7 @@ describe('ActivityGroupsBuilder', () => {
             timeLeftToComplete: null,
             image: null,
             isInActivityFlow: true,
+            isDeletedFlow: false,
             activityFlowDetails: {
               showActivityFlowBadge: true,
               activityFlowName: 'test-flow-name-1',
@@ -1711,6 +1711,7 @@ describe('ActivityGroupsBuilder', () => {
             timeLeftToComplete: null,
             image: null,
             isInActivityFlow: true,
+            isDeletedFlow: false,
             activityFlowDetails: {
               showActivityFlowBadge: false,
               activityFlowName: 'test-flow-name-1',

@@ -8,8 +8,10 @@ import {
 
 function activityService() {
   return {
-    getById(id: string) {
-      return axiosService.get<SuccessResponseActivityById>(`/activities/${id}`);
+    getById(id: string, params?: { version?: string }) {
+      return axiosService.get<SuccessResponseActivityById>(`/activities/${id}`, {
+        params,
+      });
     },
     saveAnswers(payload: AnswerPayload) {
       return axiosService.post(`/answers`, payload);
@@ -25,7 +27,11 @@ function activityService() {
       return axiosService.get<CompletedEntitiesDTOSuccessResponse>(
         `/answers/applet/${payload.appletId}/completions`,
         {
-          params: { version: payload.version, fromDate: payload.fromDate },
+          params: {
+            version: payload.version,
+            fromDate: payload.fromDate,
+            includeInProgress: payload.includeInProgress,
+          },
         },
       );
     },

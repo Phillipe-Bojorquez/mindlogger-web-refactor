@@ -1,14 +1,14 @@
-import { expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
-import { test } from '../fixtures/fixtures.ts';
-import { UIlogin } from '../utils/loginPage.ts';
-import { generateRandomUser } from '../utils/userApi.ts';
+import { test } from '../fixtures/fixtures';
+import { UIlogin } from '../utils/loginPage';
+import { generateRandomUser, UserAPI } from '../utils/userApi';
 
 // Load environment variables from .env.uat file
 dotenv.config({ path: path.resolve(__dirname, '.env.uat') });
 
-test('User can reset their password when logged in', async ({ page, api }) => {
+test('User can reset their password when logged in', async ({ page, api }: { page: Page, api: UserAPI }) => {
     // Generate a new random user
     const newUser = generateRandomUser();
     // Create the user via API
@@ -65,8 +65,8 @@ test('User can reset their password through the web interface when logged out', 
     //TODO: Use a different user than the previous test user
     await page.goto('/login');
     await page.click('text=Forgot Password?');
-    await page.fill('input[name="email"]', process.env.uat.PLAYWRIGHT_EMAIL || '');
+    await page.fill('input[name="email"]', process.env.PLAYWRIGHT_AUTOMATION_TEST_USER_EMAIL || '');
     await page.click('button[type="submit"]');
-    const confirmationMessage = `Password reset link is sent to ${process.env.uat.PLAYWRIGHT_EMAIL}`;
+    const confirmationMessage = `Password reset link is sent to ${process.env.PLAYWRIGHT_AUTOMATION_TEST_USER_EMAIL}`;
     await expect(page.getByText(confirmationMessage)).toBeVisible();
 });

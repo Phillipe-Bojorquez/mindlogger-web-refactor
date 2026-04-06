@@ -28,6 +28,7 @@ import {
   FlowRestartedPayload,
   UpdateSubStepPayload,
   SaveItemCustomPropertyPayload,
+  UpdateAppletVersionPayload,
 } from './types';
 
 import {
@@ -95,6 +96,22 @@ const appletsSlice = createSlice({
       const id = getProgressId(payload.entityId, payload.eventId, payload.targetSubjectId);
 
       delete state.groupProgress[id];
+    },
+
+    updateAppletVersion: (state, { payload }: PayloadAction<UpdateAppletVersionPayload>) => {
+      const id = getProgressId(payload.entityId, payload.eventId, payload.targetSubjectId);
+
+      const groupProgress = state.groupProgress[id];
+      if (groupProgress) {
+        groupProgress.appletVersion = payload.appletVersion;
+        if (payload.flowActivityIds) {
+          (groupProgress as FlowProgress & EventProgressTimestampState).flowActivityIds =
+            payload.flowActivityIds;
+        }
+        if (payload.flowName) {
+          (groupProgress as FlowProgress & EventProgressTimestampState).flowName = payload.flowName;
+        }
+      }
     },
 
     saveSummaryDataInGroupContext: (
@@ -291,6 +308,8 @@ const appletsSlice = createSlice({
         startAt: new Date().getTime(),
         endAt: null,
         submitId: uuidV4(),
+        appletVersion: payload.appletVersion,
+        appletId: payload.appletId,
         context: {
           summaryData: {},
         },
@@ -307,10 +326,13 @@ const appletsSlice = createSlice({
         type: ActivityPipelineType.Flow,
         currentActivityId: payload.activityId,
         startAt: new Date().getTime(),
-        currentActivityStartAt: new Date().getTime(),
         endAt: null,
         submitId: uuidV4(),
         pipelineActivityOrder: payload.pipelineActivityOrder,
+        appletVersion: payload.appletVersion,
+        appletId: payload.appletId,
+        flowActivityIds: payload.flowActivityIds,
+        flowName: payload.flowName,
         context: {
           summaryData: {},
         },
@@ -327,7 +349,6 @@ const appletsSlice = createSlice({
 
       groupProgress.currentActivityId = payload.activityId;
       groupProgress.pipelineActivityOrder = payload.pipelineActivityOrder;
-      groupProgress.currentActivityStartAt = new Date().getTime();
     },
 
     activityRestarted: (state, { payload }: PayloadAction<InProgressActivity>) => {
@@ -339,6 +360,11 @@ const appletsSlice = createSlice({
       if (groupProgress) {
         groupProgress.startAt = new Date().getTime();
         groupProgress.submitId = uuidV4();
+        // On restart, update to current applet version
+        const version = payload.appletVersion;
+        if (version) {
+          groupProgress.appletVersion = version;
+        }
       }
     },
 
@@ -350,8 +376,15 @@ const appletsSlice = createSlice({
       if (groupProgress) {
         groupProgress.currentActivityId = payload.activityId;
         groupProgress.pipelineActivityOrder = 0;
-        groupProgress.currentActivityStartAt = groupProgress.startAt = new Date().getTime();
+        groupProgress.startAt = new Date().getTime();
+        groupProgress.endAt = null;
         groupProgress.submitId = uuidV4();
+        // On restart, update to current applet version
+        groupProgress.appletVersion = payload.appletVersion;
+        groupProgress.flowActivityIds = payload.flowActivityIds;
+        groupProgress.flowName = payload.flowName;
+        // Ensure appletId is set on restart
+        state.groupProgress[id].appletId = payload.appletId;
       }
     },
 

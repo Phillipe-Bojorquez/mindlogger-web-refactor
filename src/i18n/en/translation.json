@@ -90,7 +90,32 @@
       "invalidEmail": "Email must be valid.",
       "firstNameRequired": "First name is required.",
       "lastNameRequired": "Last name is required.",
-      "passwordShouldNotContainSpaces": "Password should not contain spaces."
+      "passwordShouldNotContainSpaces": "Password should not contain spaces.",
+      "mfaCodeRequired": "Verification code is required.",
+      "mfaCodeFormat": "Verification code must be 6 digits.",
+      "recoveryCodeRequired": "Recovery code is required.",
+      "recoveryCodeFormat": "Recovery code must be in format XXXXX-XXXXX."
+    },
+    "MFA": {
+      "confirmYourIdentity": "Confirm Your Identity",
+      "enterVerificationCode": "Please enter the verification code shown in your authenticator app.",
+      "enterRecoveryCode": "Please enter an account recovery code.",
+      "verificationCode": "Enter verification code",
+      "recoveryCode": "Recovery Code",
+      "cantAccessAuthenticator": "I can't access my authenticator app",
+      "backToAuthenticator": "Back",
+      "backToLogin": "Back to login",
+      "continue": "Continue",
+      "invalidCode": "Invalid verification code",
+      "invalidRecoveryCode": "Invalid recovery code",
+      "mfaSessionExpired": "Your session has expired. Please log in again.",
+      "tooManyAttempts": "Too many failed attempts. Please try again later.",
+      "attemptsRemaining_one": "{{count}} attempt remaining",
+      "attemptsRemaining_other": "{{count}} attempts remaining",
+      "sessionAttemptsRemaining_one": "{{count}} session attempt remaining",
+      "sessionAttemptsRemaining_other": "{{count}} session attempts remaining",
+      "globalAttemptsRemaining_one": "{{count}} attempt remaining before account lockout",
+      "globalAttemptsRemaining_other": "{{count}} attempts remaining before account lockout"
     },
     "transferOwnership": {
       "adminPanel": "Admin Panel",
@@ -288,8 +313,13 @@
       "restart_activity": "Restart activity",
       "cancel": "Cancel",
       "activity_resume_restart": "Are you sure you want clear all progress and restart",
+      "activity_already_completed": "<strong>Done!</strong> This survey was already completed on a different device.",
       "restart": "Restart",
       "resume": "Resume",
+      "flow_deleted_title": "Activity Flow Removed",
+      "flow_deleted_body": "This activity flow has been removed by the admin. You can still resume and complete your existing progress.",
+      "activity_deleted_title": "Activity Removed",
+      "activity_deleted_body": "This activity has been removed by the admin.",
       "in_progress": "In Progress",
       "unscheduled": "Unscheduled",
       "scheduled": "Scheduled",
@@ -359,7 +389,7 @@
       "skipButtonText": "Skip",
       "additionalPromptText": "You have finished signing into your health care account.\n\nWould you like to sign into any additional health care accounts?"
     },
-    "rebrandBanner": "<0>We are rebranding! </0><1>Design updates are on the way — same great app, fresh new look. Curious? </1><2>Click to learn more.</2>",
+    "announcementBanner": "<0>We are rebranding! </0><1>Design updates are on the way — same great app, fresh new look. Curious? </1><2>Click to learn more.</2>",
     "oneUpHealth": {
       "tokenExpired": {
         "title": "Token Expired",

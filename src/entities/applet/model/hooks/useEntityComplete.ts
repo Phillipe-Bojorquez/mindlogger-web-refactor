@@ -5,7 +5,7 @@ import type { NavigateOptions } from 'react-router/dist/lib/context';
 
 import { useProlific } from './useProlific';
 
-import { ActivityPipelineType } from '~/abstract/lib';
+import { ActivityPipelineType, FlowProgress } from '~/abstract/lib';
 import { appletModel } from '~/entities/applet';
 import { useProlificCompletionCodeQuery } from '~/entities/applet/api/integrations/useProlificCompletionCodeQuery';
 import { prolificParamsSelector } from '~/entities/applet/model/selectors';
@@ -26,6 +26,8 @@ type Props = {
 
   appletId: string;
   flow: ActivityFlowDTO | null;
+
+  shouldRestart?: boolean; // Flag to propagate through flow navigation to skip sync
 };
 
 type CompleteOptions = {
@@ -148,6 +150,7 @@ export const useEntityComplete = (props: Props) => {
             entityType: 'flow',
             publicAppletKey: props.publicAppletKey,
             flowId: props.flowId,
+            shouldRestart: props.shouldRestart,
           }),
           { replace: true },
         );
@@ -161,6 +164,7 @@ export const useEntityComplete = (props: Props) => {
           targetSubjectId: props.targetSubjectId,
           entityType: 'flow',
           flowId: props.flowId,
+          shouldRestart: props.shouldRestart,
         }),
         { replace: true },
       );
@@ -172,6 +176,7 @@ export const useEntityComplete = (props: Props) => {
       props.flowId,
       props.publicAppletKey,
       props.targetSubjectId,
+      props.shouldRestart,
     ],
   );
 
@@ -179,8 +184,9 @@ export const useEntityComplete = (props: Props) => {
     (input?: CompleteOptions) => {
       const isAutoCompletion = input?.type === 'autoCompletion';
 
+      const entityId = props.flowId ? props.flowId : props.activityId;
       const groupProgress = getGroupProgress({
-        entityId: props.flowId ? props.flowId : props.activityId,
+        entityId,
         eventId: props.eventId,
         targetSubjectId: props.targetSubjectId,
       });
@@ -197,15 +203,20 @@ export const useEntityComplete = (props: Props) => {
 
       const currentPipelineActivityOrder = groupProgress.pipelineActivityOrder;
 
-      if (!props.flow) {
+      // Prefer stored activity IDs from when the flow was started (handles version changes)
+      const storedActivityIds = (groupProgress as FlowProgress).flowActivityIds;
+      const activityIds = storedActivityIds ?? props.flow?.activityIds ?? [];
+      const flowId = props.flow?.id ?? props.flowId;
+
+      if (!activityIds.length || !flowId) {
         throw new Error('[UseEntityComplete:completeFlow] Flow not found');
       }
 
-      const nextActivityId = props.flow.activityIds[currentPipelineActivityOrder + 1];
+      const nextActivityId = activityIds[currentPipelineActivityOrder + 1];
 
       flowUpdated({
-        activityId: nextActivityId ? nextActivityId : props.flow.activityIds[0],
-        flowId: props.flow.id,
+        activityId: nextActivityId ? nextActivityId : activityIds[0],
+        flowId,
         eventId: props.eventId,
         targetSubjectId: props.targetSubjectId,
         pipelineActivityOrder: nextActivityId ? currentPipelineActivityOrder + 1 : 0,

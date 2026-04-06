@@ -8,10 +8,10 @@ dotenv.config({ path: path.resolve(__dirname, '.env.uat') });
 
 test('User can create an account through the web interface', async ({ page }) => {
     // Generate a unique email for the test using a timestamp to ensure uniqueness
-    const originalEmail: string | undefined = process.env.uat.EMAIL_ADDRESS;
+    const originalEmail: string | undefined = process.env.EMAIL_ADDRESS;
     const email = originalEmail ? originalEmail.split('@')[0] + Date.now() + '@' + originalEmail.split('@')[1] : `user${Date.now()}@example.com`;
     // Use the helper function to navigate to /signup and create an account
-    await createAccountForm(page, email, process.env.uat.PLAYWRIGHT_GENERAL_PASSWORD || '');
+    await createAccountForm(page, email, process.env.PLAYWRIGHT_GENERAL_PASSWORD || '');
     // Verify successful account creation
     await page.getByTestId('success-banner').waitFor({ state: 'visible', timeout: 5000 });
     await expect(page.getByTestId('success-banner')).toContainText('Registration completed successfully');

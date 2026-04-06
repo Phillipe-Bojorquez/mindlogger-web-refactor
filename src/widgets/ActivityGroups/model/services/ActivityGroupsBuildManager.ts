@@ -2,6 +2,7 @@ import { mapActivitiesFromDto, mapActivityFlowsFromDto } from '../mappers';
 
 import {
   ActivityPipelineType,
+  FlowProgress,
   getDataFromProgressId,
   GroupProgressId,
   GroupProgressState,
@@ -16,20 +17,14 @@ import {
 } from '~/abstract/lib/GroupBuilder';
 import { EventModel, ScheduleEvent } from '~/entities/event';
 import { mapEventFromDto } from '~/entities/event/model';
-import {
-  ActivityBaseDTO,
-  ActivityFlowDTO,
-  AppletEventsResponse,
-  HydratedAssignmentDTO,
-} from '~/shared/api';
+import { AppletBaseDTO, AppletEventsResponse, HydratedAssignmentDTO } from '~/shared/api';
 
 type BuildResult = {
   groups: ActivityListGroup[];
 };
 
 type ProcessParams = {
-  activities: ActivityBaseDTO[];
-  flows: ActivityFlowDTO[];
+  applet: AppletBaseDTO;
   assignments: HydratedAssignmentDTO[] | null;
   events: AppletEventsResponse;
   entityProgress: GroupProgressState;
@@ -93,8 +88,8 @@ const createActivityGroupsBuildManager = () => {
   };
 
   const process = (params: ProcessParams): BuildResult => {
-    const activities: Activity[] = mapActivitiesFromDto(params.activities);
-    const activityFlows: ActivityFlow[] = mapActivityFlowsFromDto(params.flows);
+    const activities: Activity[] = mapActivitiesFromDto(params.applet.activities);
+    const activityFlows: ActivityFlow[] = mapActivityFlowsFromDto(params.applet.activityFlows);
 
     const eventsResponse = params.events;
     const events: ScheduleEvent[] = EventModel.mapEventsFromDto(eventsResponse.events);
@@ -122,12 +117,43 @@ const createActivityGroupsBuildManager = () => {
         groupProgressId as GroupProgressId,
       );
 
+      // Skip if already completed
+      if (groupProgressItem.endAt) continue;
+
       // Event should always be present in groupProgressItem, but we must check for type safety
       if (!groupProgressItem.event) continue;
 
       const event = mapEventFromDto(groupProgressItem.event);
 
-      const entity = idToEntity[entityId];
+      let entity = idToEntity[entityId];
+      let isDeletedFlow = false;
+
+      // If entity not found, check if it's a deleted flow with stored metadata
+      if (!entity && groupProgressItem.type === ActivityPipelineType.Flow) {
+        // If we know which applet this progress belongs to and it's not the current applet,
+        // skip it — it's from another applet, not a deleted flow in this one
+        if (groupProgressItem.appletId && groupProgressItem.appletId !== params.applet.id) {
+          continue;
+        }
+
+        const flowProgress = groupProgressItem as FlowProgress;
+        if (flowProgress.flowActivityIds) {
+          entity = {
+            id: entityId,
+            name: flowProgress.flowName || 'Activity Flow',
+            description: '',
+            image: null,
+            isHidden: false,
+            order: 0,
+            autoAssign: false,
+            hideBadge: false,
+            activityIds: flowProgress.flowActivityIds,
+            pipelineType: ActivityPipelineType.Flow,
+          };
+          isDeletedFlow = true;
+        }
+      }
+
       if (!entity || entity.isHidden) continue;
 
       const targetSubject = targetSubjectId
@@ -139,6 +165,7 @@ const createActivityGroupsBuildManager = () => {
         entity,
         event,
         targetSubject,
+        isDeletedFlow,
       });
     }
 

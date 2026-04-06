@@ -1,21 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
-import path from 'path';
-import dotenv from 'dotenv';
+import {runtimeConfig} from './tests/config'
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- * See https://playwright.dev/docs/test-configuration.
- */
-
-// Determine which environment file to load
-const environmentPath = process.env.ENVIRONMENT 
-    ? `./env/.env.${process.env.ENVIRONMENT}`
-    : `./env/.env.uat`; // Default to dev environment
-
-dotenv.config({ path: path.resolve(__dirname, environmentPath) });
-
-const authFile = path.join(__dirname, 'tests/.auth/session.json')
 
 export default defineConfig({
   testDir: './tests',
@@ -27,53 +12,37 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL,
     trace: 'on-first-retry', // Collect trace when retrying failed tests
-    // Other common options like headless, viewport, etc. can be added here
+    headless: true,
   },
+
+  reporter: process.env.CI ? 'github' : 'list',
+
   projects: [
-    // Old setup project (disabled - using globalSetup instead)
-    // {
-    //   name: 'setup',
-    //   testMatch: /global\.setup\.ts/,
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //   },
-    //   teardown: 'teardown',
-    // },
-    // {
-    //   name: 'teardown',
-    //   testMatch: /global\.teardown\.ts/,
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //   },
-    // },
     {
-      name: 'loggedOut-chrome',
-      testMatch: '/logged-out/*.spec.ts',
+      name: 'smoke',
+      testMatch: 'smoke/**/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        // Clears storage state for logged out tests
-        storageState: undefined,
-      },
+        storageState: runtimeConfig.storageState,
+      }
     },
     {
-      // Old logged-in project (uses old UI-based setup)
-      name: 'loggedIn-chrome',
-      testMatch: '/logged-in/*.spec.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: authFile,
-      },
-      dependencies: [],  // Removed dependency on old setup
-    },
-    {
-      // New e2e tests with admin storage state from globalSetup
       name: 'e2e',
-      testMatch: '/e2e/specs/**/*.spec.ts',
+      testMatch: 'e2e/**/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.join(__dirname, 'tests/.auth/admin.json'),
-      },
+        storageState: runtimeConfig.storageState,
+      }
     },
+    {
+      name: 'user',
+      testMatch: 'user/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: runtimeConfig.storageState,
+      }
+    },
+
     //TODO: Enable other browsers when needed.
     //At the moment all browsers but Chrome fail.
     //

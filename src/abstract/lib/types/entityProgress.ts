@@ -33,13 +33,20 @@ export type FlowProgress = {
   type: ActivityPipelineType.Flow;
   currentActivityId: string;
   pipelineActivityOrder: number;
-  currentActivityStartAt: number | null;
   submitId: string;
+  // Version of the applet when the flow was first started
+  appletVersion?: string;
+  // Snapshot of the flow's activity IDs at start time (for deleted flow recovery)
+  flowActivityIds?: string[];
+  // Flow name at start time (for deleted flow recovery)
+  flowName?: string;
 };
 
 export type ActivityProgress = {
   type: ActivityPipelineType.Regular;
   submitId: string;
+  // Version of the applet when the activity was first started
+  appletVersion?: string;
 };
 
 export type ProgressContext = {
@@ -49,6 +56,8 @@ export type ProgressContext = {
 export type ActivityOrFlowProgress = {
   context: ProgressContext;
   event: ScheduleEventDto | null;
+  // Applet this progress entry belongs to (used to prevent cross-applet leaking)
+  appletId?: string;
 } & (FlowProgress | ActivityProgress);
 
 export type EventProgressTimestampState = {

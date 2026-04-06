@@ -8,14 +8,14 @@ const authFile = path.join(__dirname, 'playwright/.auth/user.json');
 
 async function globalSetup() {
     const requestContext = await request.newContext({
-        baseURL: process.env.uat.BASE_URL, // Ensure this matches baseURL in config
+        baseURL: process.env.BASE_URL, // Ensure this matches baseURL in config
     });
 
     // Perform API login
     const response = await requestContext.post('/auth/login', {
         data: {
-            'email': process.env.uat.EMAIL,
-            'password': process.env.uat.PASSWORD,
+            'email': process.env.EMAIL,
+            'password': process.env.PASSWORD,
         },
         headers: {
             'accept': 'application/json',
@@ -29,7 +29,7 @@ async function globalSetup() {
     const body = await response.json();   
     const token = body.result.token.accessToken;
     expect(body.result.token.tokenType).toBe('Bearer');  
-    process.env.uat.API_TOKEN = token;
+    process.env.API_TOKEN = token;
     // await page.context().storageState({ path: 'playwright/.auth/user.json' })
     await requestContext.storageState({ path: 'playwright/.auth/user.json' });
     console.log('API Token:', token);

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { UIlogin } from '../utils/loginPage.ts';
+import { UIlogin } from '../utils/loginPage';
 
 test('User recieves error message when no login credentials are used', async ({ page }) => {
     // Attempt to log in without entering any credentials
@@ -26,7 +26,7 @@ test('Unauthenticated user is redirected to the /login page when attempting to a
 
 test('Authenticated user can navigate directly to a protected page', async ({ page }) => {
     // Log in with valid credentials
-    await UIlogin(page, '/login', process.env.uat.PLAYWRIGHT_EMAIL || '', process.env.uat.PLAYWRIGHT_PASSWORD || '')
+    await UIlogin(page, '/login', process.env.PLAYWRIGHT_AUTOMATION_TEST_USER_EMAIL || '', process.env.PLAYWRIGHT_AUTOMATION_TEST_USER_PASSWORD || '')
     // Wait for navigation to the protected page
     await page.waitForURL('/protected/applets');
     const appletList = page.getByTestId('applet-list');

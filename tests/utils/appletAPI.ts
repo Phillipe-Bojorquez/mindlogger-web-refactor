@@ -58,8 +58,8 @@ export class AppletAPI {
     }
 
     async ensureAdminApiLogin(_request: APIRequestContext, page: Page): Promise<string> {
-    const email = process.env.uat.PLAYWRIGHT_ADMIN_EMAIL || '';
-    const password = process.env.uat.PLAYWRIGHT_ADMIN_PASSWORD || '';
+    const email = process.env.PLAYWRIGHT_ADMIN_EMAIL || '';
+    const password = process.env.PLAYWRIGHT_ADMIN_PASSWORD || '';
 
     // Perform API login to get the token
     const token = await apiAdminLogin(page, email, password);
