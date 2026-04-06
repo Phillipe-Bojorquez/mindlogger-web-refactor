@@ -23,8 +23,18 @@ test.describe('User Authentication', () => {
   });
 
   test('Authenticated user can navigate directly to a protected page', async ({ loginPage, page, baseURL }) => {
-    const email = (process.env as any).uat?.PLAYWRIGHT_EMAIL || '';
-    const password = (process.env as any).uat?.PLAYWRIGHT_PASSWORD || '';
+    const email =
+      process.env.PLAYWRIGHT_USER_EMAIL ||
+      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
+      '';
+    const password =
+      process.env.PLAYWRIGHT_USER_PASSWORD ||
+      (process.env as any).uat?.PLAYWRIGHT_PASSWORD ||
+      '';
+
+    if (!email || !password) {
+      throw new Error('Set PLAYWRIGHT_USER_EMAIL and PLAYWRIGHT_USER_PASSWORD or process.env.uat.PLAYWRIGHT_EMAIL / PLAYWRIGHT_PASSWORD for auth tests.');
+    }
 
     await loginPage.goto(baseURL);
     await loginPage.login(email, password);

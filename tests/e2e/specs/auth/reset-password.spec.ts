@@ -39,12 +39,19 @@ test.describe('Password Reset', () => {
   });
 
   test('User can request password reset when logged out', async ({ forgotPasswordPage, page }) => {
-    const email = (process.env as any).uat?.PLAYWRIGHT_EMAIL || '';
+    const email =
+      process.env.PLAYWRIGHT_USER_EMAIL ||
+      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
+      '';
+
+    if (!email) {
+      throw new Error('Set PLAYWRIGHT_USER_EMAIL or process.env.uat.PLAYWRIGHT_EMAIL for password reset tests.');
+    }
 
     await forgotPasswordPage.navigateFromLogin();
     await forgotPasswordPage.requestReset(email);
 
-    // More flexible text matching - could be "Password reset link is sent" or variations
-    await expect(page.getByText(/password reset link/i)).toBeVisible({ timeout: 10000 });
+    // More flexible text matching - could be "Password reset link is sent to <email>"
+    await expect(page.getByText(/password reset link is sent/i)).toBeVisible({ timeout: 10000 });
   });
 });

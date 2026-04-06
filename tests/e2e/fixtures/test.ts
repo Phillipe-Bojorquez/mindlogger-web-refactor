@@ -8,6 +8,7 @@ import { AppletDetailsPage } from '../pages/applet-details.page';
 import { newApiContext } from '../api/client';
 import { UsersApi } from '../api/users.api';
 import { AppletsApi } from '../api/applets.api';
+import { InvitationsApi } from '../api/invitations.api';
 
 export type Fixtures = {
   baseURL: string;
@@ -19,6 +20,7 @@ export type Fixtures = {
   appletDetailsPage: AppletDetailsPage;
   usersApi: UsersApi;
   appletsApi: AppletsApi;
+  invitationsApi: InvitationsApi;
 };
 
 export const test = base.extend<Fixtures>({
@@ -60,6 +62,12 @@ export const test = base.extend<Fixtures>({
     const api = await newApiContext();
     const applets = new AppletsApi(api);
     await use(applets);
+    await api.dispose();
+  },
+  invitationsApi: async ({}, use) => {
+    const api = await newApiContext();
+    const invitations = new InvitationsApi(api);
+    await use(invitations);
     await api.dispose();
   },
 });

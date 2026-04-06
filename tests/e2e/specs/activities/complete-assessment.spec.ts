@@ -4,11 +4,49 @@ test.describe('Activity Completion', () => {
   test('User can complete an assessment and submit answers', async ({ 
     appletListPage, 
     appletDetailsPage, 
-    page 
+    loginPage,
+    page,
+    baseURL,
   }) => {
     // Navigate to applets list
+    const authEmail =
+      process.env.PLAYWRIGHT_ADMIN_USER_EMAIL ||
+      process.env.PLAYWRIGHT_USER_EMAIL ||
+      (process.env as any).uat?.PLAYWRIGHT_ADMIN_EMAIL ||
+      (process.env as any).uat?.PLAYWRIGHT_EMAIL ||
+      '';
+    const authPassword =
+      process.env.PLAYWRIGHT_ADMIN_USER_PASSWORD ||
+      process.env.PLAYWRIGHT_USER_PASSWORD ||
+      (process.env as any).uat?.PLAYWRIGHT_ADMIN_PASSWORD ||
+      (process.env as any).uat?.PLAYWRIGHT_PASSWORD ||
+      '';
+
+    if (!authEmail || !authPassword) {
+      throw new Error('Set PLAYWRIGHT_ADMIN_USER_EMAIL / PLAYWRIGHT_ADMIN_USER_PASSWORD or PLAYWRIGHT_USER_EMAIL / PLAYWRIGHT_USER_PASSWORD for activity completion tests.');
+    }
+
+    await loginPage.goto(baseURL);
+    await loginPage.login(authEmail, authPassword);
+    await page.waitForURL(/.*\/protected\/applets/, { timeout: 15000 });
+
     await page.goto('/protected/applets');
     await expect(page).toHaveURL(/.*\/protected\/applets/);
+
+    const appletListExists = await page
+      .waitForSelector('[data-testid="applet-list"]', { timeout: 10000 })
+      .catch(() => null);
+
+    if (!appletListExists) {
+      const noAppletsVisible = await page
+        .waitForSelector('text=/no applets/i', { timeout: 10000 })
+        .catch(() => null);
+
+      if (noAppletsVisible) {
+        test.skip('No applets available in this environment to complete an assessment');
+      }
+    }
+
     // Give the applet list more time to load and become visible
     await expect(appletListPage.appletList).toBeVisible({ timeout: 10000 });
 
