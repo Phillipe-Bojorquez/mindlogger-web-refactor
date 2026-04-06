@@ -5,6 +5,9 @@ import path from 'path';
 // Load environment variables from .env.uat file
 dotenv.config({ path: path.resolve(__dirname, '.env.uat') });
 
+/**
+ * Payload used by the user creation API.
+ */
 interface CreateUserPayload {
   confirmPassword?: string;
   email: string;
@@ -22,6 +25,9 @@ interface CreateUserResponse {
   };
 }
 
+/**
+ * Simple helper class that manages authenticated API context for user operations.
+ */
 export class UserAPI {
   private apiContext!: APIRequestContext;
   private readonly baseUrl: string;
@@ -31,6 +37,9 @@ export class UserAPI {
     this.baseUrl = baseUrl;
   }
 
+  /**
+   * Initialize the API context by authenticating as the admin user.
+   */
   async init() {
     try {
       // Create initial context for login
@@ -62,6 +71,12 @@ export class UserAPI {
     }
   }
 
+  /**
+   * Create a user through the API.
+   *
+   * @param payload - New user fields.
+   * @returns The created user response.
+   */
   async createUser(payload: CreateUserPayload): Promise<CreateUserResponse> {
     try {
       this.log(`Creating user: ${payload.email}`);
@@ -82,6 +97,15 @@ export class UserAPI {
     } 
   }
 
+  /**
+   * Authenticate a user with retries.
+   *
+   * @param email - The user email.
+   * @param password - The user password.
+   * @param retries - Number of retries before failing.
+   * @param delayMs - Delay between retries.
+   * @returns The login response payload.
+   */
   async login(email: string, password: string, retries = 3, delayMs = 1000) {
     this.log(`Attempting login for ${email} with ${retries} retries`);
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -111,6 +135,9 @@ export class UserAPI {
     }
   }
 
+  /**
+   * Dispose of the current API context.
+   */
   async dispose() {
     try {
       await this.apiContext.dispose();

@@ -13,6 +13,9 @@ dotenv.config({
 
 
 
+/**
+ * Runtime configuration for tests, loaded from environment variables.
+ */
 export const runtimeConfig = {
   storageRoot: 'storage',
   storageState: process.env.PLAYWRIGHT_STORAGE_STATE || 'tests/.auth/admin.json',

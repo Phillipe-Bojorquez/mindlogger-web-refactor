@@ -1,10 +1,27 @@
 import {APIRequestContext, request} from '@playwright/test';
 import {runtimeConfig} from "../config";
 
+/**
+ * Construct an API URL from a base URL and an endpoint path.
+ * Removes duplicate slashes when necessary.
+ *
+ * @param baseUrl - The base API URL.
+ * @param endpoint - The endpoint path to append.
+ * @returns A normalized URL string.
+ */
 export const constructApiUrl = (baseUrl: string, endpoint: string): string => {
   return `${baseUrl.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
 };
 
+/**
+ * Send a generic API request using a Playwright APIRequestContext.
+ *
+ * @param apiRequestContext - The Playwright request context.
+ * @param url - The full request URL.
+ * @param data - The JSON payload to send.
+ * @param method - The HTTP method to use.
+ * @returns The parsed JSON response body.
+ */
 export const postToApi = async (
   apiRequestContext: APIRequestContext,
   url: string,
@@ -42,6 +59,13 @@ type ApiLoginResponse = {
   }
 }
 
+/**
+ * Perform an API authentication request and return the access token.
+ *
+ * @param email - User email to authenticate.
+ * @param password - User password to authenticate.
+ * @returns A bearer access token string.
+ */
 export const performLogin = async (email: string, password: string): Promise<string> => {
   const api = await request.newContext({ baseURL: runtimeConfig.apiBaseURL });
   const res = await api.post('/auth/login', {

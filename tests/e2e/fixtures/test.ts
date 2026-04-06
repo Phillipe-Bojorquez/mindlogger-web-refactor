@@ -10,6 +10,9 @@ import { UsersApi } from '../api/users.api';
 import { AppletsApi } from '../api/applets.api';
 import { InvitationsApi } from '../api/invitations.api';
 
+/**
+ * Shared Playwright fixtures for E2E tests.
+ */
 export type Fixtures = {
   baseURL: string;
   loginPage: LoginPage;
@@ -23,6 +26,9 @@ export type Fixtures = {
   invitationsApi: InvitationsApi;
 };
 
+/**
+ * Extended test fixture that provides page objects and API helpers.
+ */
 export const test = base.extend<Fixtures>({
   baseURL: async ({}, use) => {
     await use(process.env.PLAYWRIGHT_BASE_URL ?? 'https://web-uat.cmiml.net');
